@@ -80,7 +80,10 @@ let autoPlayInterval;
 const AUTO_PLAY_DELAY = 7000; // 7 seconds per slide
 const FADE_DURATION = 600; // Must match CSS transition duration for opacity
 
-autoplayDelayInfoElement.textContent = AUTO_PLAY_DELAY / 1000;
+if (autoplayDelayInfoElement) {
+    autoplayDelayInfoElement.textContent = AUTO_PLAY_DELAY / 1000;
+}
+
 
 function displayResult(index) {
     const result = resultsData[index];
@@ -88,45 +91,41 @@ function displayResult(index) {
     slideElement.classList.remove('fade-in');
     slideElement.classList.add('fade-out');
 
-    // Wait for fade-out animation to complete before changing content
     setTimeout(() => {
         preambleTextElement.textContent = result.preamble;
         gtTextElement.textContent = result.gt;
         baseTextElement.textContent = result.baseline;
         finetuneTextElement.textContent = result.finetuned;
 
-        // Ensure the slide is ready for fade-in
-        // by removing fade-out and then adding fade-in in the next frame
         requestAnimationFrame(() => {
             slideElement.classList.remove('fade-out');
             slideElement.classList.add('fade-in');
         });
-        
+
         updateNavigation();
     }, FADE_DURATION); 
 }
 
 function updateNavigation() {
-    currentSlideInfoElement.textContent = `${currentResultIndex + 1} / ${totalResults}`;
-    // No need to disable buttons if looping
-    // prevBtn.disabled = currentResultIndex === 0;
-    // nextBtn.disabled = currentResultIndex === totalResults - 1;
+    if (currentSlideInfoElement) {
+        currentSlideInfoElement.textContent = `${currentResultIndex + 1} / ${totalResults}`;
+    }
 }
 
 function showNextResult() {
-    currentResultIndex = (currentResultIndex + 1) % totalResults; // Loop back to start
+    currentResultIndex = (currentResultIndex + 1) % totalResults; 
     displayResult(currentResultIndex);
     resetAutoPlay();
 }
 
 function showPrevResult() {
-    currentResultIndex = (currentResultIndex - 1 + totalResults) % totalResults; // Loop back to end
+    currentResultIndex = (currentResultIndex - 1 + totalResults) % totalResults; 
     displayResult(currentResultIndex);
     resetAutoPlay();
 }
 
 function startAutoPlay() {
-    stopAutoPlay(); // Clear any existing interval
+    stopAutoPlay(); 
     autoPlayInterval = setInterval(showNextResult, AUTO_PLAY_DELAY);
 }
 
@@ -139,15 +138,18 @@ function resetAutoPlay() {
     startAutoPlay();
 }
 
-// Event Listeners
-nextBtn.addEventListener('click', showNextResult);
-prevBtn.addEventListener('click', showPrevResult);
+if (nextBtn) nextBtn.addEventListener('click', showNextResult);
+if (prevBtn) prevBtn.addEventListener('click', showPrevResult);
 
-// Pause autoplay on hover over the main content area
-comparisonSliderElement.addEventListener('mouseenter', stopAutoPlay);
-comparisonSliderElement.addEventListener('mouseleave', startAutoPlay);
+if (comparisonSliderElement) {
+    comparisonSliderElement.addEventListener('mouseenter', stopAutoPlay);
+    comparisonSliderElement.addEventListener('mouseleave', startAutoPlay);
+}
 
-// Initial display
-slideElement.classList.add('fade-in'); // Ensure initial fade-in
-displayResult(currentResultIndex);
-startAutoPlay(); // Start auto-play on load
+if (slideElement) {
+    slideElement.classList.add('fade-in'); 
+    displayResult(currentResultIndex);
+    startAutoPlay(); 
+} else {
+    console.error("Slide element not found during initial setup.");
+}
